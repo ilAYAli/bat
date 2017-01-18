@@ -290,10 +290,10 @@ boost::optional<config> parse_args(int argc, char ** argv)
             ("help",            "this messages")
             ("input-file,i",    po::value<std::string>(), "input file (alt. first non-argument)")
             ("output-file,o",   po::value<std::string>(), "output file (alt. second non-argument)")
-            ("count,n",         po::value<int>(), "read N bytes")
-            ("soff,s",          po::value<int>(), "source file offset")
-            ("doff,d",          po::value<int>(), "destination file offset")
-            ("rows,r",          po::value<int>(), "number of rows in line")
+            ("count,n",         po::value<std::string>(), "read N bytes")
+            ("soff,s",          po::value<std::string>(), "source file offset")
+            ("doff,d",          po::value<std::string>(), "destination file offset")
+            ("rows,r",          po::value<std::string>(), "number of rows in line")
             ("colors,c",        "print with colors")
             ("verbose,v",       "verbose")
             ("plain,p",         "'cat' mode, do not format output")
@@ -324,15 +324,22 @@ boost::optional<config> parse_args(int argc, char ** argv)
         if (vm.count("output-file"))
             cfg.dest_file = vm["output-file"].as<std::string>();
 
-        if (vm.count("count"))
-            cfg.bytes_to_read = vm["count"].as<int>();
-        if (vm.count("soff")) {
-            cfg.source_offset = vm["soff"].as<int>();
+        if (vm.count("count")) {
+            std::string tmp = vm["count"].as<std::string>();
+            cfg.bytes_to_read = strtoul(tmp.c_str(), nullptr, 0);
         }
-        if (vm.count("doff"))
-            cfg.dest_offset = vm["doff"].as<int>();
-        if (vm.count("rows"))
-            cfg.bytes_per_line = vm["rows"].as<int>();
+        if (vm.count("soff")) {
+            std::string tmp = vm["soff"].as<std::string>();
+            cfg.source_offset = strtoul(tmp.c_str(), nullptr, 0);
+        }
+        if (vm.count("doff")) {
+            std::string tmp = vm["soff"].as<std::string>();
+            cfg.dest_offset = strtoul(tmp.c_str(), nullptr, 0);
+        }
+        if (vm.count("rows")) {
+            std::string tmp = vm["rows"].as<std::string>();
+            cfg.bytes_per_line = strtoul(tmp.c_str(), nullptr, 0);
+        }
 
         if (vm.count("plain")) {
             cfg.hex_mode = false;
