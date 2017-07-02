@@ -1,25 +1,17 @@
-/*
- * (c) petter wahlman, petter@wahlman.no
- *
- * bat -- combined cat, dd and hexdump
- *
- */
-#include "bat.hpp"
+// bat -- combined cat, dd and hexdump
 
 #include <errno.h>
+#include "bat.hpp"
 
 #ifdef _WIN32
-bool isatty(int) {
-    return true;
-}
-void umask(int) { }
-# define fileno _fileno
+    #define fileno _fileno
+    bool isatty(int) { return true; }
+    void umask(int) { }
 #endif
-
-#include <sys/stat.h>
 
 #include "boost/program_options.hpp"
 #include <iostream>
+#include <sys/stat.h>
 
 namespace po = boost::program_options;
 
@@ -83,7 +75,7 @@ FILE * open_dest_file(const std::string & filename, std::size_t offset, std::siz
             throw "unable to seek";
 
         return fp;
-    } catch (std::string & what) {
+    } catch (const char * what) {
         std::cout << "error, " << what << std::endl;
     }
     return nullptr;
@@ -107,7 +99,7 @@ void bat::print_colorized(const std::string & col) const
         fprintf(fpo_, "%s", col.c_str());
 }
 
-void bat::print_array()
+void bat::print_array() const
 {
     fprintf(fpo_, "    ");
     for (std::size_t j = 0; j < cfg.bytes_on_line; ++j) {
@@ -117,7 +109,7 @@ void bat::print_array()
     }
 }
 
-void bat::print_hex()
+void bat::print_hex() const
 {
     cfg.colorize = true;
     std::size_t j = 0;
@@ -144,7 +136,7 @@ void bat::print_hex()
     }
 }
 
-void bat::print_binary()
+void bat::print_binary() const
 {
     cfg.colorize = true;
     std::size_t j = 0;
@@ -171,7 +163,7 @@ void bat::print_binary()
     }
 }
 
-void bat::print_words()
+void bat::print_words() const
 {
     // todo: swap word
     std::size_t j = 0;
@@ -200,7 +192,7 @@ void bat::print_words()
     }
 }
 
-void bat::print_ascii()
+void bat::print_ascii() const
 {
     std::size_t j = 0;
     while (j < cfg.bytes_on_line) {
