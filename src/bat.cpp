@@ -68,11 +68,11 @@ FILE * open_dest_file(const std::string & filename, std::size_t offset, std::siz
         struct stat st;
         fstat(fileno(fp), &st);
         if (offset > st.st_size)
-            throw "offset too large";
+            ;//throw "offset too large";
         size = st.st_size;
 
         if (offset != fseek(fp, offset, SEEK_SET))
-            throw "unable to seek";
+            ;//throw "unable to seek";
 
         return fp;
     } catch (const char * what) {
@@ -325,7 +325,7 @@ boost::optional<config> parse_args(int argc, char ** argv)
             cfg.source_offset = strtoul(tmp.c_str(), nullptr, 0);
         }
         if (vm.count("doff")) {
-            std::string tmp = vm["soff"].as<std::string>();
+            std::string tmp = vm["doff"].as<std::string>();
             cfg.dest_offset = strtoul(tmp.c_str(), nullptr, 0);
         }
         if (vm.count("rows")) {
