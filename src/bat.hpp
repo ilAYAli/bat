@@ -62,7 +62,7 @@ public:
     std::string source_file;
     std::string dest_file;
     unsigned print_flags;
-    mutable bool colorize;
+    bool colorize;
 };
 
 boost::optional<config> parse_args(int argc, char ** argv);
@@ -86,12 +86,12 @@ public:
                const std::size_t dest_offset);
 private:
     void print_colorized(const std::string & col) const;
-    void print_array() const;
-    void print_hex() const;
-    void print_binary() const;
-    void print_words() const;
-    void print_ascii() const;
-    void formated_output() const;
+    void print_array();
+    void print_hex();
+    void print_binary();
+    void print_words();
+    void print_ascii();
+    void formated_output();
 
     config cfg;
     FILE * fp_;
