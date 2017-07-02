@@ -432,9 +432,16 @@ bool bat::parse(const std::string & source_file,
 
 int main(int argc, char ** argv)
 {
+    const auto pname = [](std::string const & path) {
+        return path.substr(path.find_last_of("/\\") + 1);
+    }(argv[0]);
+
     auto cfg = parse_args(argc, argv);
     if (!cfg)
         return EXIT_FAILURE;
+
+    if (pname == "cat")
+        cfg->hex_mode = false;
 
     bat bat(*cfg);
     return bat.parse(cfg->source_file,
