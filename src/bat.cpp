@@ -36,8 +36,7 @@ FILE * open_source_file(const std::string & filename, std::size_t offset, std::s
 
         auto fp = fopen(filename.c_str(), "rb");
         if (!fp) {
-            perror(filename.c_str());
-            throw "could not open file";
+            throw std::runtime_error("could not open file: " + filename);
         }
 
         struct stat st;
@@ -45,11 +44,12 @@ FILE * open_source_file(const std::string & filename, std::size_t offset, std::s
         size = st.st_size;
 
         if (isatty(fileno(stdin)) && (fseek(fp, offset, SEEK_SET) == -1))
-            throw "failed to seek";
+            throw std::runtime_error("failed to seek");
 
         return fp;
-    } catch (std::string & what) {
-        std::cout << "error, " << what << std::endl;
+    } catch (std::exception & e) {
+        std::cout << "error, " << e.what() << std::endl;
+        exit(1);
     }
     return nullptr;
 }
@@ -63,20 +63,21 @@ FILE * open_dest_file(const std::string & filename, std::size_t offset, std::siz
         umask(022);
         auto fp = fopen(filename.c_str(), "wb");
         if (!fp)
-            throw "could not open file";
+            throw std::runtime_error("could not open file");
 
         struct stat st;
         fstat(fileno(fp), &st);
         if (offset > st.st_size)
-            ;//throw "offset too large";
+            ;//throw std::runtime_error("offset too large");
         size = st.st_size;
 
         if (offset != fseek(fp, offset, SEEK_SET))
-            ;//throw "unable to seek";
+            ;//throw std::runtime_error("unable to seek");
 
         return fp;
-    } catch (const char * what) {
-        std::cout << "error, " << what << std::endl;
+    } catch (std::exception & e) {
+        std::cout << "error, " << e.what() << std::endl;
+        exit(1);
     }
     return nullptr;
 }
@@ -364,7 +365,7 @@ boost::optional<config> parse_args(int argc, char ** argv)
         if (vm.count("colors"))
             cfg.print_flags |= PRINT_COLORS;
 
-    } catch (po::error & e) {
+    } catch (std::exception & e) {
         std::cout << e.what() << std::endl;
         return boost::optional<config>();
     }
