@@ -11,9 +11,12 @@ set(liblist boost_program_options ON)
 set(liblist boost_optional ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 find_package(Boost 1.62.0 COMPONENTS program_options)
 if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS}) 
+    include_directories(${Boost_INCLUDE_DIRS})
     add_executable(bat src/bat.cpp)
     target_link_libraries(bat ${Boost_LIBRARIES})
 endif()
