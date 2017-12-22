@@ -44,7 +44,7 @@ constexpr auto COLOR_RED     = "\33[31m";
 
 void bat::print_colorized(const std::string & col) const
 {
-    if (static_cast<unsigned>(cfg.print_flags) & static_cast<unsigned>(opt::print_colors))
+    if (cfg.print_flags & opt::print_colors)
         fprintf(dst_(), "%s", col.c_str());
 }
 
@@ -63,7 +63,7 @@ void bat::print_hex() const
     cfg.colorize = true;
     std::size_t j = 0;
     while (j < cfg.bytes_on_line) {
-        const unsigned char c = quantum_[cfg.relative_offset + j];
+        const auto c = quantum_[cfg.relative_offset + j];
         cfg.colorize ^= 1;
 
         if (cfg.colorize)
@@ -89,8 +89,7 @@ void bat::print_binary() const
     cfg.colorize = true;
     std::size_t j = 0;
     while (j < cfg.bytes_on_line) {
-        const unsigned char c = quantum_[cfg.relative_offset + j];
-
+        const auto c = quantum_[cfg.relative_offset + j];
         if (j % 2)
             print_colorized(COLOR_NORMAL);
         else
@@ -116,7 +115,6 @@ void bat::print_words() const
     // todo: swap word
     std::size_t j = 0;
     while (j < cfg.bytes_on_line) {
-
         if (!(j % 4))
             cfg.colorize ^= 1; // TOTO
 
@@ -126,7 +124,7 @@ void bat::print_words() const
             print_colorized(COLOR_LIGHT);
 
         auto w = *reinterpret_cast<unsigned *>(const_cast<char *>(&quantum_[cfg.relative_offset + j]));
-        if (static_cast<unsigned>(cfg.print_flags) & static_cast<unsigned>(opt::swap_endian))
+        if (cfg.print_flags & opt::swap_endian)
             w = host2net(w);
         fprintf(dst_(), "0x%08x ", w);
 
@@ -174,44 +172,44 @@ void bat::formated_output()
         else
             cfg.bytes_on_line = quantum_.size() - cfg.relative_offset;
 
-        if (static_cast<unsigned>(cfg.print_flags) & static_cast<unsigned>(opt::print_array)) {
+        if (cfg.print_flags & opt::print_array) {
             print_array();
             fprintf(dst_(), "\n");
             cfg.relative_offset += cfg.bytes_on_line;
             continue;
         }
 
-        if (static_cast<unsigned>(cfg.print_flags) & static_cast<unsigned>(opt::print_offset)) {
+        if (cfg.print_flags & opt::print_offset) {
             print_colorized(COLOR_NORMAL);
             fprintf(dst_(), "0x%08x ", static_cast<unsigned>(cfg.source_offset + cfg.relative_offset));
         }
 
-        if (static_cast<unsigned>(cfg.print_flags) & static_cast<unsigned>(opt::print_bin)) {
+        if (cfg.print_flags & opt::print_bin) {
             print_colorized(COLOR_NORMAL);
             fputc('|', dst_());
             print_binary();
         }
 
-        if (static_cast<unsigned>(cfg.print_flags) & static_cast<unsigned>(opt::print_hex)) {
+        if (cfg.print_flags & opt::print_hex) {
             print_colorized(COLOR_NORMAL);
             fputc('|', dst_());
             print_hex();
         }
 
-        if (static_cast<unsigned>(cfg.print_flags) & static_cast<unsigned>(opt::print_words)) {
+        if (cfg.print_flags & opt::print_words) {
             print_colorized(COLOR_NORMAL);
             fputc('|', dst_());
             print_words();
         }
 
-        if (static_cast<unsigned>(cfg.print_flags) & static_cast<unsigned>(opt::print_ascii)) {
+        if (cfg.print_flags & opt::print_ascii) {
             print_colorized(COLOR_NORMAL);
             fputc('|', dst_());
             print_ascii();
         }
 
         print_colorized(COLOR_NORMAL);
-        if (static_cast<unsigned>(cfg.print_flags) & static_cast<unsigned>(opt::print_ascii))
+        if (cfg.print_flags & opt::print_ascii)
             fprintf(dst_(), "|\n");
         else
             fputc('\n', dst_());

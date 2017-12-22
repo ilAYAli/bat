@@ -29,9 +29,9 @@ constexpr opt operator | (opt lhs, opt rhs)
         static_cast<std::underlying_type<opt>::type>(rhs));
 }
 
-constexpr opt operator & (opt lhs, opt rhs)
+constexpr unsigned operator & (opt lhs, opt rhs)
 {
-    return static_cast<opt>(
+    return static_cast<unsigned>(
         static_cast<std::underlying_type<opt>::type>(lhs) &
         static_cast<std::underlying_type<opt>::type>(rhs));
 }
