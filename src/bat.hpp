@@ -1,35 +1,120 @@
 #ifndef BAT_HPP
 #define BAT_HPP
 
-#include <sys/types.h>
-
 #include "boost/optional.hpp"
-#include <stdint.h>
+#include <sys/stat.h>
+#include <cstdint>
 #include <string>
+#include <utility>
+#include <iostream>
 #include <vector>
 
-const std::string COLOR_NORMAL  = "\33[0m";
-const std::string COLOR_LIGHT   = "\33[2m";
-const std::string COLOR_BOLD    = "\33[1m";
-const std::string COLOR_BLACK   = "\33[01;30m";
-const std::string COLOR_RED     = "\33[31m";
-const std::string COLOR_GREEN   = "\33[01;32m";
-const std::string COLOR_YELLOW  = "\33[01;33m";
-const std::string COLOR_BLUE    = "\33[01;34m";
-const std::string COLOR_MAGENTA = "\33[01;35m";
-const std::string COLOR_CYAN    = "\33[01;36m";
-const std::string COLOR_WHITE   = "\33[01;37m";
+namespace pwa {
 
-enum option_flags {
-    PRINT_COLORS = 1,
-    SWAP_ENDIAN  = 2,
-    PRINT_OFFSET = 16,
-    PRINT_HEX    = 32,
-    PRINT_BIN    = 64,
-    PRINT_WORDS  = 128,
-    PRINT_ASCII  = 256,
-    PRINT_ARRAY  = 512
+enum class opt {
+    swap_endian  = 1,
+    print_colors = 2,
+    print_offset = 16,
+    print_hex    = 32,
+    print_bin    = 64,
+    print_words  = 128,
+    print_ascii  = 256,
+    print_array  = 512
 };
+
+constexpr opt operator | (opt lhs, opt rhs)
+{
+    return static_cast<opt>(
+        static_cast<std::underlying_type<opt>::type>(lhs) |
+        static_cast<std::underlying_type<opt>::type>(rhs));
+}
+
+constexpr opt operator & (opt lhs, opt rhs)
+{
+    return static_cast<opt>(
+        static_cast<std::underlying_type<opt>::type>(lhs) &
+        static_cast<std::underlying_type<opt>::type>(rhs));
+}
+
+constexpr opt & operator |= (opt & lhs, opt rhs)
+{
+    lhs = static_cast<opt> (
+        static_cast<std::underlying_type<opt>::type>(lhs) |
+        static_cast<std::underlying_type<opt>::type>(rhs)
+    );
+
+    return lhs;
+}
+
+constexpr opt & operator &= (opt & lhs, opt rhs)
+{
+    lhs = static_cast<opt> (
+        static_cast<std::underlying_type<opt>::type>(lhs) &
+        static_cast<std::underlying_type<opt>::type>(rhs)
+    );
+
+    return lhs;
+}
+
+constexpr opt operator ~ (opt rhs)
+{
+    return static_cast<opt> (
+        ~static_cast<std::underlying_type<opt>::type>(rhs)
+    );
+}
+
+class File {
+public:
+    bool open(std::string path, std::string mode, std::size_t offset = 0) {
+        name_ = std::move(path);
+        mode_ = std::move(mode);
+
+        if ((mode_.at(0) == 'r') && name_.empty()) {
+            fp_ = stdin;
+        } else if ((mode_.at(0) == 'w') && (name_.empty() || (name_ == "-"))) {
+            fp_ = stdout;
+        } else {
+            fp_ = fopen(name_.c_str(), mode_.c_str());
+            if (!fp_) {
+                std::cerr << "error, could not open file: '" + name_ << "'" << std::endl;
+                return false;
+            }
+
+            struct stat st = { 0 };
+            fstat(fileno(fp_), &st);
+            size_ = st.st_size;
+
+            offset_ = fseek(fp_, offset, SEEK_SET);
+        }
+        return true;
+    }
+
+    File(std::string path, std::string mode, std::size_t offset = 0) {
+        if (!open(std::move(path), std::move(mode), offset)) {
+            throw std::runtime_error("error, could not open file");
+        }
+    }
+
+    File() = default;
+    ~File() {
+        if (fp_ && (fp_ != stdin) && (fp_ != stdout))
+            fclose(fp_);
+        fflush(fp_);
+    }
+    File(const File & ) = delete;               // copy
+    File & operator= (const File & ) = delete;  // copy assign
+    File (File &&) = delete;                    // move
+    File operator=(File &&) = delete;           // move assign
+    FILE * operator ()() const { return fp_; }
+    std::size_t size() const { return size_; }
+private:
+    std::string name_;
+    std::string mode_;
+    std::size_t size_;
+    std::size_t offset_;
+    FILE * fp_;
+};
+
 
 class config {
 public:
@@ -46,7 +131,7 @@ public:
         , bytes_on_line()
         , source_file()
         , dest_file()
-        , print_flags(PRINT_OFFSET | PRINT_ASCII | PRINT_HEX)
+        , print_flags(opt::print_offset | opt::print_ascii | opt::print_hex)
         , colorize()
     { }
     off_t source_offset;
@@ -61,27 +146,23 @@ public:
     std::size_t bytes_on_line;
     std::string source_file;
     std::string dest_file;
-    unsigned print_flags;
+    opt print_flags;
     mutable bool colorize;
 };
-
-boost::optional<config> parse_args(int argc, char ** argv);
 
 class bat {
 public:
     bat(config & cfg)
         : cfg(cfg)
-        , fp_(stdin)
-        , fpo_(stdout)
+        , src_()
+        , dst_()
         , source_file_size()
         , dest_file_size()
         , quantum_(8192)
     { }
 
-    virtual ~bat();
-
-    bool parse(const std::string & source_file,
-               const std::string & dest_file,
+    bool parse(std::string source_file,
+               std::string dest_file,
                const std::size_t source_offset,
                const std::size_t dest_offset);
 private:
@@ -94,11 +175,13 @@ private:
     void formated_output();
 
     config cfg;
-    FILE * fp_;
-    FILE * fpo_;
+    File src_;
+    File dst_;
     std::size_t source_file_size;
     std::size_t dest_file_size;
     std::vector<char> quantum_;
 };
+
+} // end namespace pwa
 
 #endif
