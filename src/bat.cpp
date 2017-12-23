@@ -4,17 +4,16 @@
 #include "boost/program_options.hpp"
 #include "fmt/format.h"
 
-#ifdef _WIN32
-    bool isatty(int) { return true; }
-#endif
-
-
 using namespace pwa;
 namespace po = boost::program_options;
 
 namespace {
 
-uint32_t host2net(uint32_t hostlong)
+constexpr auto COLOR_NORMAL  = "\33[0m";
+constexpr auto COLOR_LIGHT   = "\33[2m";
+constexpr auto COLOR_RED     = "\33[31m";
+
+constexpr uint32_t host2net(uint32_t hostlong)
 {
     uint32_t nl = 0;
     nl |= (hostlong & 0xFF000000U) >> 24U;
@@ -23,10 +22,6 @@ uint32_t host2net(uint32_t hostlong)
     nl |= (hostlong & 0x000000FFU) << 24U;
     return nl;
 }
-
-constexpr auto COLOR_NORMAL  = "\33[0m";
-constexpr auto COLOR_LIGHT   = "\33[2m";
-constexpr auto COLOR_RED     = "\33[31m";
 
 } // end anonymous namespace
 
@@ -108,7 +103,7 @@ void bat::print_words() const
         else
             print_colorized(COLOR_LIGHT);
 
-        auto w = *reinterpret_cast<unsigned *>(const_cast<char *>(&quantum_[cfg.relative_offset + j]));
+        auto w = *reinterpret_cast<uint32_t *>(const_cast<char *>(&quantum_[cfg.relative_offset + j]));
         if (cfg.print_flags & opt::swap_endian)
             w = host2net(w);
         fmt::print(dst_(), "0x{:08x} ", w);
@@ -127,11 +122,10 @@ void bat::print_ascii() const
 {
     std::size_t j = 0;
     while (j < cfg.bytes_on_line) {
-        const unsigned char c = quantum_[cfg.relative_offset + j];
-
+        const auto c = quantum_[cfg.relative_offset + j];
         if (isprint(c)) {
             print_colorized(COLOR_NORMAL);
-            fmt::print(dst_(), "{}", static_cast<char>(c));
+            fmt::print(dst_(), "{}", c);
         } else {
             print_colorized(COLOR_RED);
             fmt::print(dst_(), " ");
@@ -166,7 +160,7 @@ void bat::formated_output()
 
         if (cfg.print_flags & opt::print_offset) {
             print_colorized(COLOR_NORMAL);
-            fmt::print(dst_(), "0x{:08x} ", static_cast<unsigned>(cfg.source_offset + cfg.relative_offset));
+            fmt::print(dst_(), "0x{:08x} ", static_cast<uint32_t>(cfg.source_offset + cfg.relative_offset));
         }
 
         if (cfg.print_flags & opt::print_bin) {

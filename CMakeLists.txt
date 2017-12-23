@@ -5,6 +5,8 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 include_directories(include)
 
 if(MSVC)
@@ -26,5 +28,4 @@ if(Boost_FOUND)
     target_link_libraries(bat ${Boost_LIBRARIES})
 endif()
 
-#add_executable(bin/bat source/bat.cpp)
 target_link_libraries(bat ${Boost_LIBRARIES} fmt::fmt-header-only)
