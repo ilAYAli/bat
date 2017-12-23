@@ -28,4 +28,4 @@ if(Boost_FOUND)
     target_link_libraries(bat ${Boost_LIBRARIES})
 endif()
 
-target_link_libraries(bat ${Boost_LIBRARIES} fmt::fmt-header-only)
+target_link_libraries(bat ${Boost_LIBRARIES} fmt)
