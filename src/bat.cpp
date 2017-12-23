@@ -1,6 +1,7 @@
 // bat -- combined cat, dd and hexdump
 
 #include "bat.hpp"
+#include "fmt/format.h"
 
 #ifdef _WIN32
     #define fileno _fileno
@@ -45,16 +46,16 @@ constexpr auto COLOR_RED     = "\33[31m";
 void bat::print_colorized(const std::string & col) const
 {
     if (cfg.print_flags & opt::print_colors)
-        fprintf(dst_(), "%s", col.c_str());
+        fmt::print(dst_(), "{}", col.c_str());
 }
 
 void bat::print_array() const
 {
-    fprintf(dst_(), "    ");
+    fmt::print(dst_(), "    ");
     for (std::size_t j = 0; j < cfg.bytes_on_line; ++j) {
         const auto c = quantum_[cfg.relative_offset + j];
         print_colorized(COLOR_LIGHT);
-        fprintf(dst_(), "0x%02x%s ", c, cfg.relative_offset + j != quantum_.size() - 1 ? "," : "");
+        fmt::print(dst_(), "0x{:02x}{} ", c, cfg.relative_offset + j != quantum_.size() - 1 ? "," : "");
     }
 }
 
@@ -70,16 +71,13 @@ void bat::print_hex() const
             print_colorized(COLOR_NORMAL);
         else
             print_colorized(COLOR_LIGHT);
-
-        fprintf(dst_(), "%02x", c);
-        fputc(' ', dst_());
-
+        fmt::print(dst_(), "{:02x} ", c);
         ++j;
     }
 
     print_colorized(COLOR_NORMAL);
     while (j < (cfg.bytes_per_line)) {
-        fprintf(dst_(), "   ");
+        fmt::print(dst_(), "   ");
         ++j;
     }
 }
@@ -97,15 +95,15 @@ void bat::print_binary() const
 
         unsigned b = 8;
         while (b--)
-            fputc((c & static_cast<uint64_t>(exp2(b))) ? '1' : '0', dst_());
-        fputc(' ', dst_());
+            fmt::print(dst_(), "{}", (c & static_cast<uint64_t>(exp2(b))) ? "1" : "0");
+        fmt::print(dst_(), " ");
 
         ++j;
     }
 
     print_colorized(COLOR_NORMAL);
     while (j < (cfg.bytes_per_line)) {
-        fprintf(dst_(), "         ");
+        fmt::print(dst_(), "         ");
         ++j;
     }
 }
@@ -126,14 +124,14 @@ void bat::print_words() const
         auto w = *reinterpret_cast<unsigned *>(const_cast<char *>(&quantum_[cfg.relative_offset + j]));
         if (cfg.print_flags & opt::swap_endian)
             w = host2net(w);
-        fprintf(dst_(), "0x%08x ", w);
+        fmt::print(dst_(), "0x{:08x} ", w);
 
         j += 4;
     }
 
     print_colorized(COLOR_NORMAL);
     while (j < cfg.bytes_per_line) {
-        fprintf(dst_(), "           ");
+        fmt::print(dst_(), "           ");
         j += 4;
     }
 }
@@ -146,10 +144,10 @@ void bat::print_ascii() const
 
         if (isprint(c)) {
             print_colorized(COLOR_NORMAL);
-            fputc(c, dst_());
+            fmt::print(dst_(), "{}", static_cast<char>(c));
         } else {
             print_colorized(COLOR_RED);
-            fputc('.', dst_());
+            fmt::print(dst_(), " ");
         }
 
         ++j;
@@ -157,7 +155,7 @@ void bat::print_ascii() const
 
     print_colorized(COLOR_NORMAL);
     while (j < cfg.bytes_per_line) {
-        fprintf(dst_(), " ");
+        fmt::print(dst_(), " ");
         ++j;
     }
 }
@@ -174,45 +172,45 @@ void bat::formated_output()
 
         if (cfg.print_flags & opt::print_array) {
             print_array();
-            fprintf(dst_(), "\n");
+            fmt::print(dst_(), "\n");
             cfg.relative_offset += cfg.bytes_on_line;
             continue;
         }
 
         if (cfg.print_flags & opt::print_offset) {
             print_colorized(COLOR_NORMAL);
-            fprintf(dst_(), "0x%08x ", static_cast<unsigned>(cfg.source_offset + cfg.relative_offset));
+            fmt::print(dst_(), "0x{:08x} ", static_cast<unsigned>(cfg.source_offset + cfg.relative_offset));
         }
 
         if (cfg.print_flags & opt::print_bin) {
             print_colorized(COLOR_NORMAL);
-            fputc('|', dst_());
+            fmt::print(dst_(), "|");
             print_binary();
         }
 
         if (cfg.print_flags & opt::print_hex) {
             print_colorized(COLOR_NORMAL);
-            fputc('|', dst_());
+            fmt::print(dst_(), "|");
             print_hex();
         }
 
         if (cfg.print_flags & opt::print_words) {
             print_colorized(COLOR_NORMAL);
-            fputc('|', dst_());
+            fmt::print(dst_(), "|");
             print_words();
         }
 
         if (cfg.print_flags & opt::print_ascii) {
             print_colorized(COLOR_NORMAL);
-            fputc('|', dst_());
+            fmt::print(dst_(), "|");
             print_ascii();
         }
 
         print_colorized(COLOR_NORMAL);
         if (cfg.print_flags & opt::print_ascii)
-            fprintf(dst_(), "|\n");
+            fmt::print(dst_(), "|\n");
         else
-            fputc('\n', dst_());
+            fmt::print(dst_(), "\n");
 
         cfg.relative_offset += cfg.bytes_on_line;
     }
@@ -252,7 +250,7 @@ boost::optional<config> parse_args(int argc, char ** argv)
         po::notify(vm);
 
         if (vm.count("help")) {
-            fprintf(stderr, "by petter wahlman, petter@wahlman.no\n");
+            fmt::print(stderr, "by petter wahlman, petter@wahlman.no\n");
             std::cout << desc << "\n";
             exit(EXIT_SUCCESS);
         }
@@ -316,11 +314,11 @@ boost::optional<config> parse_args(int argc, char ** argv)
     }
 
     if (cfg.verbose) {
-        printf("src: offset: 0x%08jx (%.10jd): %s\n",
+        fmt::print("src: offset: 0x{:08x} ({:010d}): {}\n",
                static_cast<intmax_t>(cfg.source_offset),
                static_cast<intmax_t>(cfg.source_offset),
                cfg.source_file.empty() ? "stdin" : cfg.source_file.c_str());
-        printf("dst: offset: 0x%08jx (%.10jd): %s\n\n",
+        fmt::print("dst: offset: 0x{:08x} ({:010d}): {}\n",
                static_cast<intmax_t>(cfg.dest_offset),
                static_cast<intmax_t>(cfg.dest_offset),
                cfg.dest_file.empty() ? "stdout" : cfg.dest_file.c_str());
@@ -345,7 +343,7 @@ bool bat::parse(std::string source_file,
         return false;
 
     if (cfg.array_mode)
-        fprintf(dst_(), "unsigned char data[] = {\n");
+        fmt::print(dst_(), "unsigned char data[] = {{\n");
 
     // chunk must be mod rows (due to offset printing, ...)
     quantum_.resize(quantum_.size() - (quantum_.size() % cfg.bytes_per_line));
@@ -375,7 +373,7 @@ bool bat::parse(std::string source_file,
     } while (true);
 
     if (cfg.array_mode)
-        fprintf(dst_(), "};\n");
+        fmt::print(dst_(), "}};\n");
 
     return true;
 }

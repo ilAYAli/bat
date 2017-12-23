@@ -18,6 +18,7 @@ else()
     )
 endif()
 
+find_package(fmt REQUIRED)
 find_package(Boost 1.62.0 COMPONENTS program_options)
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
@@ -26,4 +27,4 @@ if(Boost_FOUND)
 endif()
 
 #add_executable(bin/bat source/bat.cpp)
-target_link_libraries(bat ${Boost_LIBRARIES})
+target_link_libraries(bat ${Boost_LIBRARIES} fmt::fmt-header-only)
