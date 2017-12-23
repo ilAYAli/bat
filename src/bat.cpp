@@ -1,18 +1,13 @@
 // bat -- combined cat, dd and hexdump
 
 #include "bat.hpp"
+#include "boost/program_options.hpp"
 #include "fmt/format.h"
 
 #ifdef _WIN32
-    #define fileno _fileno
     bool isatty(int) { return true; }
-    void umask(int) { }
 #endif
 
-#include "boost/program_options.hpp"
-#include <iostream>
-#include <memory>
-#include <sys/stat.h>
 
 using namespace pwa;
 namespace po = boost::program_options;
@@ -32,14 +27,6 @@ uint32_t host2net(uint32_t hostlong)
 constexpr auto COLOR_NORMAL  = "\33[0m";
 constexpr auto COLOR_LIGHT   = "\33[2m";
 constexpr auto COLOR_RED     = "\33[31m";
-//constexpr auto COLOR_BOLD    = "\33[1m";
-//constexpr auto COLOR_BLACK   = "\33[01;30m";
-//constexpr auto COLOR_GREEN   = "\33[01;32m";
-//constexpr auto COLOR_YELLOW  = "\33[01;33m";
-//constexpr auto COLOR_BLUE    = "\33[01;34m";
-//constexpr auto COLOR_MAGENTA = "\33[01;35m";
-//constexpr auto COLOR_CYAN    = "\33[01;36m";
-//constexpr auto COLOR_WHITE   = "\33[01;37m";
 
 } // end anonymous namespace
 

@@ -2,8 +2,8 @@
 #define BAT_HPP
 
 #include "boost/optional.hpp"
-#include <sys/stat.h>
 #include <cstdint>
+#include <fstream>
 #include <string>
 #include <utility>
 #include <iostream>
@@ -63,6 +63,12 @@ constexpr opt operator ~ (opt rhs)
     );
 }
 
+std::ifstream::pos_type filesize(const std::string & filename)
+{
+    std::ifstream in(filename, std::ios::binary | std::ios::ate);
+    return in.tellg();
+}
+
 class File {
 public:
     bool open(std::string path, std::string mode, std::size_t offset = 0) {
@@ -80,10 +86,7 @@ public:
                 return false;
             }
 
-            struct stat st = { 0 };
-            fstat(fileno(fp_), &st);
-            size_ = st.st_size;
-
+            size_ = filesize(name_);
             offset_ = fseek(fp_, offset, SEEK_SET);
         }
         return true;
