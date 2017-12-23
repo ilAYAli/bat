@@ -10,8 +10,9 @@ namespace po = boost::program_options;
 namespace {
 
 constexpr auto COLOR_NORMAL  = "\33[0m";
-constexpr auto COLOR_LIGHT   = "\33[2m";
+//constexpr auto COLOR_LIGHT   = "\33[2m";
 constexpr auto COLOR_RED     = "\33[31m";
+constexpr auto COLOR_BOLD    = "\33[1m";
 
 constexpr uint32_t host2net(uint32_t hostlong)
 {
@@ -27,8 +28,9 @@ constexpr uint32_t host2net(uint32_t hostlong)
 
 void bat::print_colorized(const std::string & col) const
 {
-    if (cfg.print_flags & opt::print_colors)
+    if (cfg.print_flags & opt::print_colors) {
         fmt::print(dst_(), "{}", col.c_str());
+    }
 }
 
 void bat::print_array() const
@@ -36,7 +38,7 @@ void bat::print_array() const
     fmt::print(dst_(), "    ");
     for (std::size_t j = 0; j < cfg.bytes_on_line; ++j) {
         const auto c = quantum_[cfg.relative_offset + j];
-        print_colorized(COLOR_LIGHT);
+        print_colorized(COLOR_BOLD);
         fmt::print(dst_(), "0x{:02x}{} ", c, cfg.relative_offset + j != quantum_.size() - 1 ? "," : "");
     }
 }
@@ -52,7 +54,7 @@ void bat::print_hex() const
         if (cfg.colorize)
             print_colorized(COLOR_NORMAL);
         else
-            print_colorized(COLOR_LIGHT);
+            print_colorized(COLOR_BOLD);
         fmt::print(dst_(), "{:02x} ", c);
         ++j;
     }
@@ -73,7 +75,7 @@ void bat::print_binary() const
         if (j % 2)
             print_colorized(COLOR_NORMAL);
         else
-            print_colorized(COLOR_LIGHT);
+            print_colorized(COLOR_BOLD);
 
         unsigned b = 8;
         while (b--)
@@ -101,7 +103,7 @@ void bat::print_words() const
         if (cfg.colorize)
             print_colorized(COLOR_NORMAL);
         else
-            print_colorized(COLOR_LIGHT);
+            print_colorized(COLOR_BOLD);
 
         auto w = *reinterpret_cast<uint32_t *>(const_cast<char *>(&quantum_[cfg.relative_offset + j]));
         if (cfg.print_flags & opt::swap_endian)
