@@ -79,7 +79,7 @@ void bat::print_binary() const
 
         unsigned b = 8;
         while (b--)
-            fmt::print(dst_(), "{}", (c & static_cast<uint64_t>(exp2(b))) ? "1" : "0");
+            fmt::print(dst_(), "{}", (static_cast<uint8_t>(c) & static_cast<uint64_t>(exp2(b))) ? "1" : "0");
         fmt::print(dst_(), " ");
 
         ++j;

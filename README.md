@@ -2,9 +2,10 @@
 Combined `cat`, `dd` and `hexdump`
 
 
-###Requirements:
-  - `boost_program_options` (apt-get install libboost-all-dev or some subset thereof)
-  - Linux/MacOS: `make` `g++` / `clang++`
+### Requirements:
+  - `{fmt}` https://github.com/fmtlib/fmt - most likely available through your OS's package manager.
+  - `boost_program_options` install libboost-all-dev or some subset thereof with your OS's package manager.
+  - Linux/macOS: `cmake` `g++` / `clang++`
   - Windows: use the included Visual Studio project file.
   
   
