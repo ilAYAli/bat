@@ -22,21 +22,21 @@ enum class opt {
     print_array  = 512
 };
 
-constexpr opt operator | (opt lhs, opt rhs)
+opt operator | (opt lhs, opt rhs)
 {
     return static_cast<opt>(
         static_cast<std::underlying_type<opt>::type>(lhs) |
         static_cast<std::underlying_type<opt>::type>(rhs));
 }
 
-constexpr unsigned operator & (opt lhs, opt rhs)
+unsigned operator & (opt lhs, opt rhs)
 {
     return static_cast<unsigned>(
         static_cast<std::underlying_type<opt>::type>(lhs) &
         static_cast<std::underlying_type<opt>::type>(rhs));
 }
 
-constexpr opt & operator |= (opt & lhs, opt rhs)
+opt & operator |= (opt & lhs, opt rhs)
 {
     lhs = static_cast<opt> (
         static_cast<std::underlying_type<opt>::type>(lhs) |
@@ -46,7 +46,7 @@ constexpr opt & operator |= (opt & lhs, opt rhs)
     return lhs;
 }
 
-constexpr opt & operator &= (opt & lhs, opt rhs)
+opt & operator &= (opt & lhs, opt rhs)
 {
     lhs = static_cast<opt> (
         static_cast<std::underlying_type<opt>::type>(lhs) &
@@ -56,7 +56,7 @@ constexpr opt & operator &= (opt & lhs, opt rhs)
     return lhs;
 }
 
-constexpr opt operator ~ (opt rhs)
+opt operator ~ (opt rhs)
 {
     return static_cast<opt> (
         ~static_cast<std::underlying_type<opt>::type>(rhs)
