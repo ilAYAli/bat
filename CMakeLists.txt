@@ -1,31 +1,35 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.7)
+
+project(bat)
 
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 
 include_directories(include)
 
-if(MSVC)
-    add_compile_options(/std:c++14 /W4 /wd4100 /wd4456 /permissive- /GR-)
-else()
-    add_compile_options(
-        -std=c++11
-        -Wall
-        -Wextra
-        -pedantic
-    )
-endif()
-
+# libfmt:
 find_package(fmt REQUIRED)
-
-find_package(Boost 1.62.0 COMPONENTS program_options)
-if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-    add_executable(bat src/bat.cpp)
-    target_link_libraries(bat ${Boost_LIBRARIES})
+if (NOT fmt_FOUND)
+    message (FATAL_ERROR "Cannot find libfmt")
 endif()
 
+# boost:
+find_package(Boost 1.62.0 REQUIRED COMPONENTS program_options)
+if (NOT Boost_FOUND)
+    message (FATAL_ERROR "Cannot find Boost")
+else()
+    include_directories(${Boost_INCLUDE_DIRS})
+endif()
+
+# target:
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+add_executable(bat src/bat.cpp)
+
+# link:
 target_link_libraries(bat ${Boost_LIBRARIES} fmt)
