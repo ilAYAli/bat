@@ -108,7 +108,7 @@ void bat::print_words() const
         else
             print_colorized(COLOR_BOLD);
 
-        auto w = *reinterpret_cast<uint32_t *>(const_cast<char *>(&quantum_[cfg.relative_offset + j]));
+        auto w = *reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(&quantum_[cfg.relative_offset + j]));
         if (cfg.print_flags & opt::swap_endian)
             w = host2net(w);
         fmt::print(dst_(), "0x{:08x} ", w);
@@ -130,7 +130,7 @@ void bat::print_ascii() const
         const auto c = quantum_[cfg.relative_offset + j];
         if (isprint(c)) {
             print_colorized(COLOR_NORMAL);
-            fmt::print(dst_(), "{}", c);
+            fmt::print(dst_(), "{}", static_cast<char>(c));
         } else {
             print_colorized(COLOR_RED);
             fmt::print(dst_(), " ");

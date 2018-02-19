@@ -182,7 +182,7 @@ private:
     File dst_;
     std::size_t source_file_size;
     std::size_t dest_file_size;
-    std::vector<char> quantum_;
+    std::vector<unsigned char> quantum_;
 };
 
 } // end namespace pwa
