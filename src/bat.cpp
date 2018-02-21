@@ -133,7 +133,7 @@ void bat::print_ascii() const
             fmt::print(dst_(), "{}", static_cast<char>(c));
         } else {
             print_colorized(COLOR_RED);
-            fmt::print(dst_(), " ");
+            fmt::print(dst_(), ".");
         }
 
         ++j;
