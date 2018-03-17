@@ -29,7 +29,7 @@ endif()
 
 # target:
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-add_executable(bat src/bat.cpp)
+add_executable(bat src/main.cpp)
 
 # link:
 target_link_libraries(bat ${Boost_LIBRARIES} fmt)

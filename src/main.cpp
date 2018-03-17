@@ -1,6 +1,6 @@
 // bat -- combined cat, dd and hexdump
 
-#include "bat.hpp"
+#include "main.hpp"
 #include "boost/program_options.hpp"
 #include "fmt/format.h"
 
