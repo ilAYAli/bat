@@ -69,8 +69,7 @@ std::ifstream::pos_type filesize(const std::string & filename)
     return in.tellg();
 }
 
-class File {
-public:
+struct File {
     bool open(std::string path, std::string mode, std::size_t offset = 0) {
         name_ = std::move(path);
         mode_ = std::move(mode);
