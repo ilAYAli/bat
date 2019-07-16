@@ -38,8 +38,8 @@ void bat::print_array() const
     fmt::print(dst_(), "    ");
     for (std::size_t j = 0; j < cfg.bytes_on_line; ++j) {
         const auto c = quantum_[cfg.relative_offset + j];
-        print_colorized(COLOR_LIGHTGRAY);
-        fmt::print(dst_(), "0x{:02x}{} ", c, cfg.relative_offset + j != quantum_.size() - 1 ? "," : "");
+        print_colorized(COLOR_BOLD);
+        fmt::print(dst_(), "{:#02x}{} ", c, cfg.relative_offset + j != quantum_.size() - 1 ? "," : "");
     }
 }
 
@@ -111,7 +111,7 @@ void bat::print_words() const
         auto w = *reinterpret_cast<uint32_t *>(const_cast<unsigned char *>(&quantum_[cfg.relative_offset + j]));
         if (cfg.print_flags & opt::swap_endian)
             w = host2net(w);
-        fmt::print(dst_(), "0x{:08x} ", w);
+        fmt::print(dst_(), "{:#08x} ", w);
 
         j += 4;
     }
@@ -165,7 +165,7 @@ void bat::formated_output()
 
         if (cfg.print_flags & opt::print_offset) {
             print_colorized(COLOR_NORMAL);
-            fmt::print(dst_(), "0x{:08x} ", static_cast<uint32_t>(cfg.source_offset + cfg.relative_offset));
+            fmt::print(dst_(), "{:#08x} ", static_cast<uint32_t>(cfg.source_offset + cfg.relative_offset));
         }
 
         if (cfg.print_flags & opt::print_bin) {
@@ -308,11 +308,11 @@ boost::optional<config> parse_args(int argc, char ** argv)
     }
 
     if (cfg.verbose) {
-        fmt::print("src: offset: 0x{:08x} ({:010d}): {}\n",
+        fmt::print("src: offset: {:#08x} ({:010d}): {}\n",
                static_cast<intmax_t>(cfg.source_offset),
                static_cast<intmax_t>(cfg.source_offset),
                cfg.source_file.empty() ? "stdin" : cfg.source_file.c_str());
-        fmt::print("dst: offset: 0x{:08x} ({:010d}): {}\n",
+        fmt::print("dst: offset: {:#08x} ({:010d}): {}\n",
                static_cast<intmax_t>(cfg.dest_offset),
                static_cast<intmax_t>(cfg.dest_offset),
                cfg.dest_file.empty() ? "stdout" : cfg.dest_file.c_str());
