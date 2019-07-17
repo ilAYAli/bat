@@ -9,10 +9,11 @@ namespace po = boost::program_options;
 
 namespace {
 
-const auto COLOR_NORMAL  = "\33[0m";
-//constexpr auto COLOR_LIGHT   = "\33[2m";
-constexpr auto COLOR_RED     = "\33[31m";
-constexpr auto COLOR_LIGHTGRAY    = "\33[38;5;250m";
+constexpr auto COLOR_NORMAL     = "\33[0m";
+constexpr auto COLOR_LIGHT      = "\33[2m";
+constexpr auto COLOR_RED        = "\33[31m";
+constexpr auto COLOR_LIGHTGRAY  = "\33[38;5;250m";
+constexpr auto COLOR_BOLD       = "\33[1m";
 
 uint32_t host2net(uint32_t hostlong)
 {
