@@ -4,6 +4,8 @@
 #include "boost/program_options.hpp"
 #include "fmt/format.h"
 
+#include <optional>
+
 using namespace pwa;
 namespace po = boost::program_options;
 
@@ -203,7 +205,7 @@ void bat::formated_output()
     }
 }
 
-boost::optional<config> parse_args(int argc, char ** argv)
+std::optional<config> parse_args(int argc, char ** argv)
 {
     config cfg;
 
@@ -305,7 +307,7 @@ boost::optional<config> parse_args(int argc, char ** argv)
 
     } catch (std::exception & e) {
         std::cout << e.what() << std::endl;
-        return boost::optional<config>();
+        return std::optional<config>();
     }
 
     if (cfg.verbose) {

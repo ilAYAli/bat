@@ -1,7 +1,6 @@
 #ifndef BAT_HPP
 #define BAT_HPP
 
-#include "boost/optional.hpp"
 #include <cstdint>
 #include <fstream>
 #include <string>
